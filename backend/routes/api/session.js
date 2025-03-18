@@ -47,4 +47,11 @@ router.post('/', async (req, res, next) => {   // POST /api/session endpoint
   });
 });
 
-module.exports = router;// Export the router for use in other files
+
+// Log out
+router.delete('/', (_req, res) => {            // DELETE /api/session endpoint
+  res.clearCookie('token');                    // Remove the JWT cookie
+  return res.json({ message: 'success' });     // Return success message
+});
+
+module.exports = router;
