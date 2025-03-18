@@ -17,8 +17,8 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true,
         validate: {
-          len: [4, 30],                        // username must be 4-30 characters
-          isNotEmail(value) {                  // custom validator
+          len: [4, 30],
+          isNotEmail(value) {
             if (Validator.isEmail(value)) {
               throw new Error('Cannot be an email.');
             }
@@ -30,27 +30,35 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true,
         validate: {
-          len: [3, 256],                       // email must be 3-256 characters
-          isEmail: true,                       // must be a valid email format
+          len: [3, 256],
+          isEmail: true,
         },
       },
       hashedPassword: {
         type: DataTypes.STRING.BINARY,
         allowNull: false,
         validate: {
-          len: [60, 60],                       // bcrypt hashes are always 60 characters
+          len: [60, 60],
         },
+      },
+      firstName: {                             // Add firstName attribute
+        type: DataTypes.STRING,
+        allowNull: true,                      // Optional field
+      },
+      lastName: {                              // Add lastName attribute
+        type: DataTypes.STRING,
+        allowNull: true,                      // Optional field
       },
     },
     {
       sequelize,
-    modelName: 'User',
-    defaultScope: {
-      attributes: {
-        exclude: ['hashedPassword', 'email', 'createdAt', 'updatedAt'],  // Fields to exclude by default
+      modelName: 'User',
+      defaultScope: {
+        attributes: {
+          exclude: ['hashedPassword', 'createdAt', 'updatedAt'],   // Exclude sensitive fields
+        },
       },
-    },
-  }
-);
+    }
+  );
   return User;
 };

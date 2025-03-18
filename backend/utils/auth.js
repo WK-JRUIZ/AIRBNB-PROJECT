@@ -12,7 +12,10 @@ const setTokenCookie = (res, user) => {
     id: user.id,
     email: user.email,
     username: user.username,
+    firstName: user.firstName,                   // Include firstName in token
+    lastName: user.lastName                      // Include lastName in token
   };
+  
   const token = jwt.sign(
     { data: safeUser },                           // Payload to encode in the JWT
     secret,                                       // Secret key for signing
