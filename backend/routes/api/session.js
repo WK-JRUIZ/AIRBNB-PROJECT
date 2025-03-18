@@ -2,14 +2,29 @@
 const express = require('express');
 const { Op } = require('sequelize');           // Import Sequelize operators
 const bcrypt = require('bcryptjs');            // Import bcrypt for password comparison
-
+const { check } = require('express-validator');                    // Import check function
+const { handleValidationErrors } = require('../../utils/validation');  // Import validation handle
 const { setTokenCookie, restoreUser } = require('../../utils/auth');  // Import auth utilities
 const { User } = require('../../db/models');   // Import User model
-
 const router = express.Router();
 
+
+const validateLogin = [                                           // Create array of middleware
+  check('credential')                                             // Validate credential field
+    .exists({ checkFalsy: true })                                // Must exist and not be falsy
+    .notEmpty()                                                  // Must not be empty
+    .withMessage('Please provide a valid email or username.'),   // Error message
+  check('password')                                              // Validate password field
+    .exists({ checkFalsy: true })                                // Must exist and not be falsy
+    .withMessage('Please provide a password.'),                  // Error message
+  handleValidationErrors                                         // Process validation results
+];
+
 // Log in
-router.post('/', async (req, res, next) => {   // POST /api/session endpoint
+router.post(
+  '/', 
+  validateLogin,
+  async (req, res, next) => {   // POST /api/session endpoint
   const { credential, password } = req.body;   // Extract credentials from request body
 
   // Find the user by either username or email
