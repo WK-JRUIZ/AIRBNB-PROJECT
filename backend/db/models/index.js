@@ -40,4 +40,9 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+Object.values(db).forEach((model) => {
+  if (model.associate) {
+    model.associate(db);
+  }
+});
 module.exports = db;

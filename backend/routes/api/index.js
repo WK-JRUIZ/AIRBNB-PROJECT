@@ -11,7 +11,7 @@ router.use(restoreUser);                               // Apply restoreUser to a
 
 router.use('/session', sessionRouter);                 // Mount session router at /api/session
 router.use('/users', usersRouter);                     // Mount users router at /api/users
-
+// router.use('/spots', spotsRouter);
 router.post('/test', (req, res) => {                   // Test route (can be removed later)
   res.json({ requestBody: req.body });
 });

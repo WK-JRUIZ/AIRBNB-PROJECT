@@ -15,10 +15,6 @@ router.get("/api/csrf/restore", (req, res) => {
 // Connect the API router - all routes in apiRouter will be prefixed with '/api'
 router.use('/api', apiRouter);                // Mount the API router under the /api path
 
-// Remove this test route since we're no longer using it
-// router.get('/hello/world', function(req, res) {
-//   res.cookie('XSRF-TOKEN', req.csrfToken());
-//   res.send('Hello World!');
-// });
+
 
 module.exports = router;                      // Export the main router
