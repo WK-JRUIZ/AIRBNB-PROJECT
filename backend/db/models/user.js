@@ -1,26 +1,12 @@
-// backend/db/models/user.js
 'use strict';
-
 const { Model, Validator } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      User.hasMany(models.Spot, {
-        foreignKey: 'ownerId',
-        onDelete: 'CASCADE',
-        hooks: true,
-      });
-      User.hasMany(models.Review, {
-        foreignKey: 'userId',
-        onDelete: 'CASCADE',
-        hooks: true,
-      });
-      User.hasMany(models.Booking, {
-        foreignKey: 'userId',
-        onDelete: 'CASCADE',
-        hooks: true,
-      });
+      User.hasMany(models.Spot, { foreignKey: 'ownerId', onDelete: 'CASCADE', hooks: true });
+      User.hasMany(models.Review, { foreignKey: 'userId', onDelete: 'CASCADE', hooks: true });
+      User.hasMany(models.Booking, { foreignKey: 'userId', as: 'Bookings', onDelete: 'CASCADE', hooks: true });
     }
   }
 
@@ -55,13 +41,13 @@ module.exports = (sequelize, DataTypes) => {
           len: [60, 60],
         },
       },
-      firstName: {                             // Add firstName attribute
+      firstName: {
         type: DataTypes.STRING,
-        allowNull: true,                      // Optional field
+        allowNull: true,
       },
-      lastName: {                              // Add lastName attribute
+      lastName: {
         type: DataTypes.STRING,
-        allowNull: true,                      // Optional field
+        allowNull: true,
       },
     },
     {
@@ -69,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
       modelName: 'User',
       defaultScope: {
         attributes: {
-          exclude: ['hashedPassword', 'createdAt', 'updatedAt'],   // Exclude sensitive fields
+          exclude: ['hashedPassword', 'createdAt', 'updatedAt'],
         },
       },
     }

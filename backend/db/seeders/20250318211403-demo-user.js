@@ -1,21 +1,19 @@
-// backend/db/seeders/XXXXXXXXXXXXXX-demo-user.js
 'use strict';
-
 const { User } = require('../models');
-const bcrypt = require("bcryptjs");        // Import bcrypt for password hashing
+const bcrypt = require('bcryptjs');
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
-  options.schema = process.env.SCHEMA;     // Define schema for production
+  options.schema = process.env.SCHEMA;
 }
 
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await User.bulkCreate([                // Create multiple users at once
+  async up(queryInterface, Sequelize) {
+    await User.bulkCreate([
       {
         email: 'demo@user.io',
         username: 'Demo-lition',
-        hashedPassword: bcrypt.hashSync('password')  // Hash password on the fly
+        hashedPassword: bcrypt.hashSync('password')
       },
       {
         email: 'user1@user.io',
@@ -27,14 +25,14 @@ module.exports = {
         username: 'FakeUser2',
         hashedPassword: bcrypt.hashSync('password3')
       }
-    ], { validate: true });                // Run model validations on seed data
+    ], { validate: true, logging: console.log });
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     options.tableName = 'Users';
     const Op = Sequelize.Op;
     return queryInterface.bulkDelete(options, {
-      username: { [Op.in]: ['Demo-lition', 'FakeUser1', 'FakeUser2'] }  // Delete specific users
+      username: { [Op.in]: ['Demo-lition', 'FakeUser1', 'FakeUser2'] }
     }, {});
   }
 };
