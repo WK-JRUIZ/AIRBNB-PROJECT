@@ -25,8 +25,8 @@ module.exports = {
       const endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + length);
       return {
-        startDate: startDate.toISOString().split('T')[0], // YYYY-MM-DD
-        endDate: endDate.toISOString().split('T')[0],     // YYYY-MM-DD
+        startDate: startDate.toISOString().split('T')[0], 
+        endDate: endDate.toISOString().split('T')[0],    
       };
     }
 
@@ -56,7 +56,7 @@ module.exports = {
         userId: user1.id,
         ...getDates(30, 5),
       },
-    ], { validate: true }); // Enforce model validations
+    ], { validate: true }); 
   },
 
   async down(queryInterface, Sequelize) {

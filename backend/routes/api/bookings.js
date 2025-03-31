@@ -67,22 +67,17 @@ router.get('/current', requireAuth, async (req, res) => {
 router.put('/:bookingId', requireAuth, validateBooking, async (req, res) => {
   const { bookingId } = req.params;
   const { startDate, endDate } = req.body;
-
   const booking = await Booking.findByPk(bookingId);
-
-  if (!booking) {
+    if (!booking) {
     return res.status(404).json({ message: 'Booking not found' });
   }
-
-  if (booking.userId !== req.user.id) {
+    if (booking.userId !== req.user.id) {
     return res.status(403).json({ message: 'Forbidden' });
   }
-
-  if (new Date(booking.startDate) < new Date()) {
+    if (new Date(booking.startDate) < new Date()) {
     return res.status(403).json({ message: 'Booking has already started' });
   }
-
-  const conflictingBookings = await Booking.findAll({
+    const conflictingBookings = await Booking.findAll({
     where: {
       spotId: booking.spotId,
       [Op.or]: [
