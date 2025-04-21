@@ -145,7 +145,7 @@ router.post('/:id/images', requireAuth, async (req, res) => {
   }
 });
 
- straddrouter.put('/:id', requireAuth, validateSpot, async (req, res) => {
+ router.put('/:id', requireAuth, validateSpot, async (req, res) => {
   try {
     const spotId = req.params.id;
     const { address, city, state, country, lat, lng, name, description, price } = req.body;
