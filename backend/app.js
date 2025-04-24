@@ -52,11 +52,11 @@ app.use(
 app.use(routes);                                    // Use defined routes (e.g., /api)
 
 // Serve frontend for non-API routes (SPA support)
-if (!isProduction) {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html')); // Serve index.html for all non-API routes
-  });
-}
+// if (!isProduction) {
+  // app.get('*', (req, res) => {
+    // res.sendFile(path.join(__dirname, 'public', 'index.html')); // Serve index.html for all non-API routes
+  // });
+//}
 
 // --- ERROR HANDLING MIDDLEWARE BELOW ---
 
