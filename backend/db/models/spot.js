@@ -116,7 +116,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         notEmpty: {
-          msg: 'Description is required'
+          msg: 'A description is required'
         }
       }
     },

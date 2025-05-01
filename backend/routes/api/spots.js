@@ -5,6 +5,7 @@ const { Spot, SpotImage, User, Review, Booking } = require('../../db/models');
 const { requireAuth } = require('../../utils/auth');
 const { check, validationResult } = require('express-validator');
 const { Op } = require('sequelize');
+const { sequelize } = require('../../db/models');
 
 const router = express.Router();
 
