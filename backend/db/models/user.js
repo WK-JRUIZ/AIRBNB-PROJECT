@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
       User.hasMany(models.Spot, { foreignKey: 'ownerId', onDelete: 'CASCADE', hooks: true, as: 'OwnedSpots',  });
-      User.hasMany(models.Review, { foreignKey: 'userId', onDelete: 'CASCADE', hooks: true,  as: 'UserReviews', });
+      User.hasMany(models.Review, { foreignKey: 'userId', onDelete: 'CASCADE', hooks: true,  as: 'Reviews', });
       User.hasMany(models.Booking, { foreignKey: 'userId', onDelete: 'CASCADE', hooks: true, as: 'UserBookings',});
     }
   }
@@ -43,11 +43,11 @@ module.exports = (sequelize, DataTypes) => {
       },
       firstName: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
       },
       lastName: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
       },
     },
     {

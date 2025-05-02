@@ -5,38 +5,55 @@ const { Spot, SpotImage, User, Review, Booking } = require('../../db/models');
 const { requireAuth } = require('../../utils/auth');
 const { check, validationResult } = require('express-validator');
 const { Op } = require('sequelize');
+const { handleValidationErrors } = require('../../utils/validation');
 const { sequelize } = require('../../db/models');
 
 const router = express.Router();
 
 const validateSpot = [
-  check('address').notEmpty().withMessage('Address is required'),
+  check('address').notEmpty().withMessage('Street address is required'),
   check('city').notEmpty().withMessage('City is required'),
   check('state').notEmpty().withMessage('State is required'),
   check('country').notEmpty().withMessage('Country is required'),
-  check('lat').isFloat({ min: -90, max: 90 }).withMessage('Latitude must be between -90 and 90'),
-  check('lng').isFloat({ min: -180, max: 180 }).withMessage('Longitude must be between -180 and 180'),
-  check('name').notEmpty().withMessage('Name is required'),
-  check('price').isFloat({ min: 0 }).withMessage('Price must be a positive number'),
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-  }
+  check('lat')
+    .exists({ checkFalsy: true })
+    .isFloat({ min: -90, max: 90 })
+    .withMessage('Latitude must be within -90 and 90'),
+  check('lng')
+    .exists({ checkFalsy: true })
+    .isFloat({ min: -180, max: 180 })
+    .withMessage('Longitude must be within -180 and 180'),
+  check('name')
+    .exists({ checkFalsy: true })
+    .isLength({ max: 50 })
+    .withMessage('Name must be less than 50 characters'),
+  check('description')
+    .exists({ checkFalsy: true })
+    .notEmpty()
+    .withMessage('Description is required'),
+  check('price')
+    .exists({ checkFalsy: true })
+    .isFloat({ min: 0 })
+    .withMessage('Price per day must be a positive number'),
+  handleValidationErrors
 ];
 
 const validateQueryFilters = [
   check('page').optional().isInt({ min: 1 }).withMessage('Page must be greater than or equal to 1'),
   check('size').optional().isInt({ min: 1, max: 20 }).withMessage('Size must be between 1 and 20'),
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-  }
+  handleValidationErrors 
+];
+
+const validateReview = [
+  check('review')
+    .exists({ checkFalsy: true })
+    .notEmpty()
+    .withMessage('Review text is required'),
+  check('stars')
+    .exists({ checkFalsy: true })
+    .isInt({ min: 1, max: 5 })
+    .withMessage('Stars must be an integer from 1 to 5'),
+    handleValidationErrors 
 ];
 
 router.get('/', validateQueryFilters, async (req, res) => {
@@ -121,9 +138,23 @@ router.get('/:id', async (req, res) => {
 router.post('/', requireAuth, validateSpot, async (req, res) => {
   try {
     const spot = await Spot.create({ ...req.body, ownerId: req.user.id });
-    res.status(201).json(spot);
+    const formattedSpot = {
+      id: spot.id,
+      address: spot.address,
+      city: spot.city,
+      state: spot.state,
+      country: spot.country,
+      lat: parseFloat(spot.lat),
+      lng: parseFloat(spot.lng),
+      name: spot.name,
+      description: spot.description,
+      price: parseFloat(spot.price),
+      createdAt: spot.createdAt,
+      updatedAt: spot.updatedAt
+    };
+    res.status(201).json(formattedSpot);
   } catch (err) {
-    res.status(400).json({ error: 'Invalid data' });
+    res.status(500).json({ message: 'Something went wrong' });
   }
 });
 
@@ -156,7 +187,6 @@ router.post('/:id/images', requireAuth, async (req, res) => {
     await spot.update({ address, city, state, country, lat, lng, name, description, price });
     const formattedResponse = {
       id: spot.id,
-      ownerId: spot.ownerId,
       address: spot.address,
       city: spot.city,
       state: spot.state,
@@ -170,11 +200,7 @@ router.post('/:id/images', requireAuth, async (req, res) => {
       updatedAt: spot.updatedAt
     };
     res.json(formattedResponse);
-  } catch (err) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ message: 'Bad Request', errors: errors.array() });
-    }
+   } catch (err) {
     res.status(500).json({ message: 'Something went wrong' });
   }
 });
@@ -277,6 +303,36 @@ router.post('/:spotId/bookings', requireAuth, async (req, res) => {
   } catch (err) {
     console.log('Error:', err);
     return res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+
+router.post('/:spotId/reviews', requireAuth, validateReview, async (req, res) => {
+  try {
+    const spotId = req.params.spotId;
+    const userId = req.user.id;
+    const { review, stars } = req.body;
+
+    const spot = await Spot.findByPk(spotId);
+    if (!spot) {
+      return res.status(404).json({ message: "Spot couldn't be found" });
+    }
+
+    const existingReview = await Review.findOne({ where: { spotId, userId } });
+    if (existingReview) {
+      return res.status(403).json({ message: "User already has a review for this spot" });
+    }
+  
+    const newReview = await Review.create({ 
+      spotId, 
+      userId, 
+      review, 
+      stars 
+    });
+    
+    res.status(201).json(newReview);
+  } catch (err) {
+    console.log('Error:', err);
+    res.status(500).json({ message: 'Something went wrong' });
   }
 });
 

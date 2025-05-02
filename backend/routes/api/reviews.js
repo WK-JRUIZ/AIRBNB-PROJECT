@@ -27,7 +27,7 @@ router.get('/current', requireAuth, async (req, res) => {
   const reviews = await Review.findAll({
     where: { userId },
     include: [
-      { model: User, attributes: ['id', 'firstName', 'lastName'] },
+      { model: User, as: 'Reviewer', attributes: ['id', 'firstName', 'lastName'] },  // FIX: Added 'as: Reviewer' here
       {
         model: Spot,
         attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'price'],
@@ -53,7 +53,7 @@ router.get('/current', requireAuth, async (req, res) => {
       stars: review.stars,
       createdAt: review.createdAt,
       updatedAt: review.updatedAt,
-      User: review.User,
+      User: review.Reviewer,  // CORRECT: Leave this as is
       Spot: spot,
       ReviewImages: review.ReviewImages
     };

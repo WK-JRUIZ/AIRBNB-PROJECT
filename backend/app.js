@@ -83,13 +83,14 @@ app.use((err, _req, _res, next) => {
  
 app.use((err, _req, res, _next) => {                
   res.status(err.status || 500);
-  console.error(err);
-  res.json({
-    title: err.title || 'Server Error',
-    message: err.message,
-    errors: err.errors,
-    stack: isProduction ? null : err.stack          
-  });
+  const response = {
+    message: err.title || err.message || "Server Error",
+    errors: err.errors || {}
+  };
+   if (!isProduction) {
+    console.error(err);
+  }
+  res.json(response);
 });
 
 module.exports = app;
