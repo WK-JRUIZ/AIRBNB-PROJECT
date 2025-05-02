@@ -1,14 +1,15 @@
 // backend/psql-setup-script.js
 const { sequelize } = require('./db/models');
 
-console.log('Starting database setup...');
+console.log('Starting setup...');
+console.log('Schema name is:', process.env.SCHEMA);
 
 sequelize.showAllSchemas({ logging: false })
-  .then(async (data) => {
-    console.log('Checking if schema exists...');
+  .then((data) => {
+    console.log('Found schemas:', data);
     
     if (!data.includes(process.env.SCHEMA)) {
-      console.log('Schema not found, creating it now...');
+      console.log('Need to create schema');
       return sequelize.createSchema(process.env.SCHEMA);
     } else {
       console.log('Schema already exists');
@@ -16,10 +17,10 @@ sequelize.showAllSchemas({ logging: false })
     }
   })
   .then(() => {
-    console.log('Setup complete');
+    console.log('All done!');
     process.exit(0);
   })
-  .catch(err => {
-    console.error('Error in setup:', err);
+  .catch((err) => {
+    console.log('Got an error:', err);
     process.exit(1);
   });
