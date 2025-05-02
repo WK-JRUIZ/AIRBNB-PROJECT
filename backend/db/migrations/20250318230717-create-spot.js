@@ -1,5 +1,10 @@
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
+let options = {};
+if (process.env.NODE_ENV === 'production') {
+  options.schema = process.env.SCHEMA || 'airbnb_schema';
+}
+
 module.exports = {
   async up(queryInterface, Sequelize) {
     return queryInterface.createTable('Spots', {
@@ -64,10 +69,11 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
-    });
+    }, options);
   },
 
   down: async (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Spots');
+    options.tableName = "Spots";
+    return queryInterface.dropTable(options);
   }
 };
