@@ -223,54 +223,60 @@ router.get('/:spotId/bookings', requireAuth, async (req, res) => {
   }
 });
 
-router.post('/:spotId/bookings', requireAuth, [
-  check('startDate').isDate().withMessage('Start date is required and must be a valid date'),
-  check('endDate').isDate().withMessage('End date is required and must be a valid date'),
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-  }
-], async (req, res) => {
+router.post('/:spotId/bookings', requireAuth, async (req, res) => {
   try {
-    const { spotId } = req.params;
+    const spotId = req.params.spotId;
     const { startDate, endDate } = req.body;
     const userId = req.user.id;
 
-    const spot = await Spot.findByPk(spotId);
-    if (!spot) return res.status(404).json({ error: 'Spot not found' });
-    if (spot.ownerId === userId) return res.status(403).json({ error: 'You cannot book your own spot' });
-
-    const existingBookings = await Booking.findAll({
-      where: {
-        spotId,
-        [Op.or]: [
-          { startDate: { [Op.between]: [startDate, endDate] } },
-          { endDate: { [Op.between]: [startDate, endDate] } },
-          { [Op.and]: [
-            { startDate: { [Op.lte]: startDate } },
-            { endDate: { [Op.gte]: endDate } }
-          ]}
-        ]
-      }
-    });
-
-    if (existingBookings.length > 0) {
-      return res.status(403).json({ error: 'Booking conflicts with an existing reservation' });
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'Start date and end date are required' });
     }
 
-    const newBooking = await Booking.create({
+    const spot = await Spot.findOne({ where: { id: spotId } });
+    
+    if (!spot) {
+      return res.status(404).json({ error: 'Spot not found' });
+    }
+    
+    if (spot.ownerId === userId) {
+      return res.status(403).json({ 
+        error: "Booking your own place? That's just staying home with a cleaning fee!" 
+      });
+    }
+
+    const allBookings = await Booking.findAll({ where: { spotId } });
+    
+    const bookingStart = new Date(startDate);
+    const bookingEnd = new Date(endDate);
+    
+    const hasConflict = allBookings.some(booking => {
+      const existingStart = new Date(booking.startDate);
+      const existingEnd = new Date(booking.endDate);
+      
+      return (
+        (bookingStart >= existingStart && bookingStart <= existingEnd) ||
+        (bookingEnd >= existingStart && bookingEnd <= existingEnd) ||
+        (bookingStart <= existingStart && bookingEnd >= existingEnd)
+      );
+    });
+    
+    if (hasConflict) {
+      return res.status(403).json({ error: 'Sorry, these dates are already booked' });
+    }
+
+    const booking = await Booking.create({
       spotId,
       userId,
       startDate,
-      endDate,
+      endDate
     });
 
-    res.status(201).json(newBooking);
+    return res.status(201).json(booking);
+    
   } catch (err) {
-    res.status(500).json({ error: 'Something went wrong' });
+    console.log('Error:', err);
+    return res.status(500).json({ error: 'Something went wrong' });
   }
 });
 

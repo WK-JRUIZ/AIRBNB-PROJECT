@@ -1,55 +1,55 @@
 const express = require('express');
-require('express-async-errors');                    // Automatically catches errors in async route handlers
-const morgan = require('morgan');                   // HTTP request logger
-const cors = require('cors');                       // Cross-Origin Resource Sharing
-const csurf = require('csurf');                     // CSRF protection
-const helmet = require('helmet');                   // Security headers
-const cookieParser = require('cookie-parser');      // Parse cookies from requests
-const { ValidationError } = require('sequelize');   // Import Sequelize validation error
-const path = require('path');                       // For serving static files
+require('express-async-errors');                    
+const morgan = require('morgan');                   
+const cors = require('cors');                       
+const csurf = require('csurf');                    
+const helmet = require('helmet');                   
+const cookieParser = require('cookie-parser');       
+const { ValidationError } = require('sequelize');    
+const path = require('path');                        
 
-const { environment } = require('./config');        // Import environment configuration
-const isProduction = environment === 'production';  // Check if we're in production
-const routes = require('./routes');                 // Import routes
+const { environment } = require('./config');         
+const isProduction = environment === 'production';   
+const routes = require('./routes');                 
 
-const app = express();                              // Create Express application
+const app = express();                             
 
-// Connect morgan middleware for logging
-app.use(morgan('dev'));                             // Log HTTP requests
+ 
+app.use(morgan('dev'));                              
 
-// Parse cookies and JSON bodies
-app.use(cookieParser());                            // Parse Cookie header and populate req.cookies
-app.use(express.json());                            // Parse JSON request bodies
+ 
+app.use(cookieParser());                             
+app.use(express.json());                          
 
-// Serve static files (e.g., React frontend)
-app.use(express.static(path.join(__dirname, 'public'))); // Serve frontend from 'public' folder
+ 
+app.use(express.static(path.join(__dirname, 'public')));  
 
-// Security middleware
+ 
 if (!isProduction) {
-  // Enable CORS in development with specific origin
-  app.use(cors({ origin: 'http://localhost:3000', credentials: true })); // Allow frontend on port 3000
+   
+  app.use(cors({ origin: 'http://localhost:3000', credentials: true }));  
 }
 
-// Helmet helps set security headers
+ 
 app.use(
   helmet.crossOriginResourcePolicy({
-    policy: 'cross-origin'                          // Allow loading resources from different origins
+    policy: 'cross-origin'                           
   })
 );
 
-// Set the _csrf token and create req.csrfToken method
+ 
 app.use(
   csurf({
     cookie: {
-      secure: isProduction,                         // HTTPS only in production
-      sameSite: isProduction ? 'Lax' : 'Strict',    // Stricter in development
-      httpOnly: true                                // Prevents JavaScript access to the cookie
+      secure: isProduction,                          
+      sameSite: isProduction ? 'Lax' : 'Strict',     
+      httpOnly: true                                 
     }
   })
 );
 
-// Connect routes
-app.use(routes);                                    // Use defined routes (e.g., /api)
+ 
+app.use(routes);                                 
 
 // Serve frontend for non-API routes (SPA support)
 // if (!isProduction) {
@@ -58,10 +58,8 @@ app.use(routes);                                    // Use defined routes (e.g.,
   // });
 //}
 
-// --- ERROR HANDLING MIDDLEWARE BELOW ---
-
-// Catch unhandled requests and forward to error handler
-app.use((_req, _res, next) => {                     // 404 Not Found handler
+ 
+app.use((_req, _res, next) => {                     
   const err = new Error('The requested resource couldn\'t be found.');
   err.title = 'Resource Not Found';
   err.errors = { message: 'The requested resource couldn\'t be found.' };
@@ -69,8 +67,8 @@ app.use((_req, _res, next) => {                     // 404 Not Found handler
   next(err);
 });
 
-// Process Sequelize errors
-app.use((err, _req, _res, next) => {                // Sequelize error handler
+ 
+app.use((err, _req, _res, next) => {                
   if (err instanceof ValidationError) {
     let errors = {};
     for (let error of err.errors) {
@@ -82,15 +80,15 @@ app.use((err, _req, _res, next) => {                // Sequelize error handler
   next(err);
 });
 
-// Error formatter
-app.use((err, _req, res, _next) => {                // General error formatter
+ 
+app.use((err, _req, res, _next) => {                
   res.status(err.status || 500);
   console.error(err);
   res.json({
     title: err.title || 'Server Error',
     message: err.message,
     errors: err.errors,
-    stack: isProduction ? null : err.stack          // Only include stack in development
+    stack: isProduction ? null : err.stack          
   });
 });
 
