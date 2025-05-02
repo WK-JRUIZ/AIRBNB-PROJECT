@@ -13,7 +13,7 @@ const validateReview = [
   check('review')
     .exists({ checkFalsy: true })
     .notEmpty()
-    .withMessage('Review text is required'),
+    .withMessage('Type a review'),
   check('stars')
     .exists({ checkFalsy: true })
     .isInt({ min: 1, max: 5 })

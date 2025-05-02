@@ -10,13 +10,13 @@ module.exports = {
     console.log(demoUser, user1, user2);
 
     if (!demoUser || !user1 || !user2) {
-      throw new Error('Users not found. Seed your Users.');
+      throw new Error('Users not found. Must seed your Users.');
     }
     const spots = await Spot.findAll();
     console.log(spots);
 
     if (!spots.length) {
-      throw new Error('Spots not found. Seed your Spots.');
+      throw new Error('Spots not found. Must seed your Spots.');
     }
 
     function getDates(startDays, length) {

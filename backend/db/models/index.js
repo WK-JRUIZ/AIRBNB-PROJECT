@@ -21,7 +21,7 @@ if (config.use_env_variable) {
   );
 }
 
-// Dynamically import all model files in this directory (except index.js itself)
+
 fs.readdirSync(__dirname)
   .filter((file) => {
     return (
@@ -39,7 +39,7 @@ fs.readdirSync(__dirname)
     db[model.name] = model;
   });
 
-// Set up model associations
+
 Object.values(db).forEach((model) => {
   if (model.associate) {
     model.associate(db);

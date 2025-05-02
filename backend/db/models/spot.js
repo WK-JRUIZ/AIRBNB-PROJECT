@@ -126,7 +126,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         min: {
           args: [0],
-          msg: 'Price per day must be a positive number'
+          msg: 'Price must be postive number'
         }
       }
     }
