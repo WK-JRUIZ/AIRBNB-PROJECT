@@ -3,7 +3,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     const options = process.env.NODE_ENV === 'production' ? {
-      schema: process.env.SCHEMA
+      schema: process.env.SCHEMA || 'airbnb_schema',
     } : {};
 
     await queryInterface.createTable('ReviewImages', {
