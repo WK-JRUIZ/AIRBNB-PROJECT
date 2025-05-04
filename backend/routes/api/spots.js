@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const { Spot, SpotImage, User, Review, Booking } = require('../../db/models');
+const { Spot, SpotImage, User, Review, Booking, ReviewImage } = require('../../db/models');
 const { requireAuth } = require('../../utils/auth');
 const { check, validationResult } = require('express-validator');
 const { Op } = require('sequelize');
@@ -120,7 +120,7 @@ router.get('/:id', async (req, res) => {
       },
       group: ['Spot.id', 'SpotImages.id', 'Owner.id']
     });
-    if (!spot) return res.status(404).json({ error: 'Spot not found' });
+    if (!spot) return res.status(404).json({ error: 'Spot couldn\'t be found' });
     
     const formattedSpot = {
       ...spot.toJSON(),
@@ -305,6 +305,39 @@ router.post('/:spotId/bookings', requireAuth, async (req, res) => {
     return res.status(500).json({ error: 'Something went wrong' });
   }
 });
+router.get('/:spotId/reviews', async (req, res) => {
+  try {
+    const spotId = req.params.spotId;
+
+    const spot = await Spot.findByPk(spotId);
+    if (!spot) {
+      return res.status(404).json({ message: "Spot couldn't be found" });
+    }
+    
+    const reviews = await Review.findAll({
+      where: { spotId },
+      include: [
+        {
+          model: User,
+          as: 'User',
+          attributes: ['id', 'firstName', 'lastName']
+        },
+        {
+          model: ReviewImage,
+          attributes: ['id', 'url']
+        }
+      ]
+    });
+    
+    console.log('Found reviews:', reviews); 
+    return res.json({ Reviews: reviews });
+  } catch (err) {
+    console.error('Error details:', err); 
+    res.status(500).json({ message: 'Something went wrong' });
+  }
+});
+
+
 
 router.post('/:spotId/reviews', requireAuth, validateReview, async (req, res) => {
   try {
@@ -319,11 +352,11 @@ router.post('/:spotId/reviews', requireAuth, validateReview, async (req, res) =>
 
     const existingReview = await Review.findOne({ where: { spotId, userId } });
     if (existingReview) {
-      return res.status(403).json({ message: "User already has a review for this spot" });
+      return res.status(500).json({ message: "User already has a review for this spot" });
     }
   
     const newReview = await Review.create({ 
-      spotId, 
+      spotId: parseInt(spotId), 
       userId, 
       review, 
       stars 
@@ -335,5 +368,7 @@ router.post('/:spotId/reviews', requireAuth, validateReview, async (req, res) =>
     res.status(500).json({ message: 'Something went wrong' });
   }
 });
+
+
 
 module.exports = router;
