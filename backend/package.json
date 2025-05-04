@@ -10,7 +10,7 @@
     "start:production": "node ./bin/www",
     "build": "node psql-setup-script.js",
     "dev": "nodemon ./bin/www",
-    "fix_deploy": "node -e \"const models = require('./db/models'); models.sequelize.query('SET search_path TO \\\"airbnb_schema\\\", public;').then(function() { console.log('Search path set!'); models.sequelize.sync({force: true}).then(function() { console.log('All tables created!'); process.exit(0); }); })\""
+    "fix_deploy": "node -e \"const models = require('./db/models'); models.sequelize.query('SET search_path TO \\\"airbnb_schema\\\", public;').then(function() { console.log('Search path set!'); models.User.sync({force: true}).then(function() { console.log('Users table created!'); models.Spot.sync({force: true}).then(function() { console.log('Spots table created!'); models.SpotImage.sync({force: true}).then(function() { console.log('SpotImages table created!'); models.Review.sync({force: true}).then(function() { console.log('Reviews table created!'); models.ReviewImage.sync({force: true}).then(function() { console.log('ReviewImages table created!'); models.Booking.sync({force: true}).then(function() { console.log('Bookings table created!'); console.log('All done!'); process.exit(0); }); }); }); }); }); }); })\""
   },
   "keywords": [],
   "author": "",
