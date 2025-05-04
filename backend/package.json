@@ -10,7 +10,7 @@
     "start:production": "node ./bin/www",
     "build": "node psql-setup-script.js",
     "dev": "nodemon ./bin/www",
-   "fix_deploy": "node -e \"const models = require('./db/models'); const schema = process.env.SCHEMA || 'airbnb_schema'; models.sequelize.query('SET search_path TO \"' + schema + '\", public').then(function() { console.log('Schema path set!'); const qi = models.sequelize.getQueryInterface(); qi.sequelize.options.schema = schema; console.log('Running migrations with updated query interface...'); const exec = require('child_process').exec; const cmd = 'NODE_ENV=production SCHEMA=' + schema + ' npx sequelize-cli db:migrate --schema=' + schema; exec(cmd, function(err, stdout) { if(err) { console.log('ERROR:', err); } else { console.log(stdout); console.log('MIGRATIONS DONE!'); } }) })\""
+  "fix_deploy": "node -e \"const models = require('./db/models'); const schema = process.env.SCHEMA || 'airbnb_schema'; models.sequelize.query('SET search_path TO \\\"' + schema + '\\\", public').then(function() { console.log('Schema path set!'); const qi = models.sequelize.getQueryInterface(); qi.sequelize.options.schema = schema; console.log('Running migrations with updated query interface...'); const exec = require('child_process').exec; const cmd = 'NODE_ENV=production SCHEMA=' + schema + ' npx sequelize-cli db:migrate --schema=' + schema; exec(cmd, function(err, stdout) { if(err) { console.log('ERROR:', err); } else { console.log(stdout); console.log('MIGRATIONS DONE!'); } }) })\""
   },
   "keywords": [],
   "author": "",
