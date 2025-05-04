@@ -9,7 +9,8 @@
     "start:development": "nodemon ./bin/www",
     "start:production": "node ./bin/www",
     "build": "node psql-setup-script.js",
-    "dev": "nodemon ./bin/www"
+    "dev": "nodemon ./bin/www",
+    "fix_deploy": "node -e \"const models = require('./db/models'); models.sequelize.query('SET search_path TO airbnb_schema, public').then(function() { console.log('Schema path set!'); const exec = require('child_process').exec; exec('npx sequelize-cli db:migrate', function(err, stdout) { if(err) { console.log('ERROR:', err); } else { console.log(stdout); console.log('MIGRATIONS DONE!'); } }) })\""
   },
   "keywords": [],
   "author": "",

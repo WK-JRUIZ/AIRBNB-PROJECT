@@ -20,7 +20,6 @@ if (process.env.NODE_ENV === 'production') {
     }
   });
 
-  // Set a schema name even if SCHEMA isn't defined
   const schemaName = process.env.SCHEMA || 'airbnb_schema';
   
   sequelize.query(`CREATE SCHEMA IF NOT EXISTS "${schemaName}"`)

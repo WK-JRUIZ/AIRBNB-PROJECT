@@ -65,7 +65,7 @@ async function testPostgresConnection(url) {
       console.log('Could not fetch schemas:', err.message);
     }
     
-    // Try to get a list of tables
+ 
     try {
       const tables = await sequelize.getQueryInterface().showAllTables();
       console.log('Available tables:', tables);
