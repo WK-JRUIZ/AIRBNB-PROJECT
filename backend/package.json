@@ -10,7 +10,7 @@
     "start:production": "node ./bin/www",
     "build": "node psql-setup-script.js",
     "dev": "nodemon ./bin/www",
-    "fix_deploy": "node -e \"console.log('Starting fix script...'); const models = require('./db/models'); const schema = 'airbnb_schema'; console.log('Setting path to: ' + schema); models.sequelize.query('SET search_path TO \\\"' + schema + '\\\", public;').then(() => { console.log('Search path set!'); models.sequelize.query('SELECT current_schema();').then((result) => { console.log('Current schema is:', result[0][0].current_schema); require('child_process').exec('npx sequelize-cli db:migrate', (err, stdout) => { if(err) console.log('Migration error:', err); else console.log(stdout); }); }); });\""
+    "fix_deploy": "node -e \"console.log('Starting fix script...'); const models = require('./db/models'); const schema = 'airbnb_schema'; console.log('Setting path to: ' + schema); models.sequelize.query('SET search_path TO \\\"' + schema + '\\\", public;').then(() => { console.log('Search path set!'); models.sequelize.query('CREATE TABLE IF NOT EXISTS \\\"' + schema + '\\\".\\\"Users\\\" (id SERIAL PRIMARY KEY, username VARCHAR(30) NOT NULL UNIQUE, email VARCHAR(256) NOT NULL UNIQUE, \\\"hashedPassword\\\" BYTEA NOT NULL, \\\"firstName\\\" VARCHAR(255), \\\"lastName\\\" VARCHAR(255), \\\"createdAt\\\" TIMESTAMP WITH TIME ZONE NOT NULL, \\\"updatedAt\\\" TIMESTAMP WITH TIME ZONE NOT NULL);').then(() => { console.log('Users table created!'); console.log('Migration complete!'); process.exit(0); }); }); });\""
   },
   "keywords": [],
   "author": "",
