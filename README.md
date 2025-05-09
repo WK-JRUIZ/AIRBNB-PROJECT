@@ -2,11 +2,11 @@
 
 ## GitHub Repository
 
-[GitHub Repository](https://github.com/Bschaler/brian_jose_airbnb_project.git)
+[GitHub Repository]
 
 ## Database Schema Design
 
-![db-schema](./images/db-schema.png)
+![db-schema]
 
 ## API Documentation
 
